@@ -1,0 +1,34 @@
+{
+  "name": "ezfarma",
+  "version": "1.0.0",
+  "description": "Back end para EzFarma",
+  "main": "index.ts",
+  "scripts": {
+    "compile":"tsc && node ./dist/index.js",
+    "dev": "nodemon -e ts --exec \"npm run compile\"",
+    "start": "node ./dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.0.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.0",
+    "express": "^4.18.1",
+    "express-validator": "^6.14.0",
+    "jsonwebtoken": "^8.5.1"
+  },
+  "devDependencies": {
+    "@babel/preset-typescript": "^7.16.7",
+    "@types/cors": "^2.8.12",
+    "@types/express": "^4.17.13",
+    "@types/jsonwebtoken": "^8.5.8",
+    "@types/node": "^17.0.31",
+    "jest": "^28.1.0",
+    "nodemon": "^2.0.16",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  }
+}
