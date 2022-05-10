@@ -1,5 +1,8 @@
-import express,{ Application } from 'express';
+import express,{ Application, Request, Response } from 'express';
 import cors from 'cors';
+import path from 'path';
+
+import {userRoutes} from '../routes'
 
 export default class Server {
     private express:Application;
@@ -9,16 +12,23 @@ export default class Server {
 
 
         this.middlewares();
+        this.routes();
     }
 
     private middlewares(){
         this.express.use(cors());
         this.express.use(express.json());
         this.express.use(express.static('public'));
-    }
 
+    }
+    
     private routes(){
-        this.express.use('/api/users')
+        this.express.use('/api/users',userRoutes);
+        
+        //Angular Routes
+        this.express.get('*',(req:Request,res:Response) => {
+            res.sendFile(path.resolve(__dirname,'../public/index.html'))
+        })
     }
 
     public listen(){
