@@ -2,7 +2,7 @@ import express,{ Application, Request, Response } from 'express';
 import cors from 'cors';
 import path from 'path';
 
-import {userRoutes} from '../routes'
+import {userRoutes, pharmacyRoutes} from '../routes'
 
 export default class Server {
     private express:Application;
@@ -24,6 +24,7 @@ export default class Server {
     
     private routes(){
         this.express.use('/api/users',userRoutes);
+        this.express.use('/api/pharmacy',pharmacyRoutes);
         
         //Angular Routes
         this.express.get('*',(req:Request,res:Response) => {
