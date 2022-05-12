@@ -4,13 +4,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = require("express");
-const express_validator_1 = require("express-validator");
+const multer_1 = __importDefault(require("multer"));
 const controllers_1 = require("../controllers");
 const middlewares_1 = require("../middlewares");
-const files_1 = require("../middlewares/files");
-const multer_1 = __importDefault(require("multer"));
 const storage = multer_1.default.memoryStorage();
-const upload = (0, multer_1.default)({ storage: storage });
+const upload = (0, multer_1.default)({ storage: storage, limits: { fieldSize: 10 * 1024 * 1024 } });
 const router = (0, express_1.Router)();
 router.get('', (req, res) => {
     const { id } = req.query;
@@ -20,7 +18,7 @@ router.get('', (req, res) => {
 });
 router.post('/upload/:id', [
     upload.single('catalogo'),
-    (0, express_validator_1.check)('catalogo').custom((value, { req }) => (0, files_1.validateExtension)('xls')(req)),
+    // check('catalogo').custom((value,{req}) => validateExtension('xls')(req)),
     middlewares_1.handlerErrorResult
 ], controllers_1.pharmacyController.uploadList);
 exports.default = router;

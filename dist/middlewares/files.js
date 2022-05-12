@@ -3,6 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.validateExtension = void 0;
 const validateExtension = (extension, ...args) => (req) => {
     var _a;
+    console.log('singleFile', req === null || req === void 0 ? void 0 : req.file);
+    console.log('multFile', req === null || req === void 0 ? void 0 : req.files);
     if (!(req === null || req === void 0 ? void 0 : req.file) && !(req === null || req === void 0 ? void 0 : req.files)) {
         throw Error('Ningún archivo encontrado.');
     }

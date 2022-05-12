@@ -1,4 +1,6 @@
 export const validateExtension = (extension: string, ...args: string[]) =>(req: any) => {
+  console.log('singleFile',req?.file)
+  console.log('multFile',req?.files)
     if(!req?.file && !req?.files){
       throw Error('Ningún archivo encontrado.')
     }

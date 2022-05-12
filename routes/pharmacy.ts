@@ -1,13 +1,13 @@
 import { Response,Request, Router } from 'express';
 import { body, check } from 'express-validator';
+import multer from "multer";
 
 import { pharmacyController } from '../controllers';
 import { handlerErrorResult, files } from '../middlewares';
 import { validateExtension } from '../middlewares/files';
 
-import multer from "multer";
 const storage = multer.memoryStorage();
-const upload = multer({storage:storage})
+const upload = multer({storage:storage,limits: { fieldSize: 10 * 1024 * 1024 } })
 
 const router = Router();
 
@@ -20,7 +20,7 @@ router.get('', (req:Request,res:Response) =>{
 router.post('/upload/:id',
             [
              upload.single('catalogo'),
-            check('catalogo').custom((value,{req}) =>validateExtension('xls')(req)),
+            // check('catalogo').custom((value,{req}) => validateExtension('xls')(req)),
              handlerErrorResult
             ],
             pharmacyController.uploadList
