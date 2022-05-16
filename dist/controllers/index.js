@@ -28,3 +28,4 @@ const userController = __importStar(require("./users"));
 exports.userController = userController;
 const pharmacyController = __importStar(require("./pharmacy"));
 exports.pharmacyController = pharmacyController;
+//# sourceMappingURL=index.js.map

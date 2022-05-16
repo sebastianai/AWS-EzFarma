@@ -31,3 +31,4 @@ const server_1 = __importDefault(require("./server/server"));
 dot.config();
 const server = new server_1.default();
 server.listen();
+//# sourceMappingURL=index.js.map

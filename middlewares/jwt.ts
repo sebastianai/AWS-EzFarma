@@ -1,20 +1,17 @@
 import {Request,Response,NextFunction} from 'express';
 import {  verify } from 'jsonwebtoken';
 
-export const verifyToken = (req:Request,res:Response,next:NextFunction) => {
-    const token = req.header('token');
+export const verifyToken = (token:string) => {
 
     if(!token){
-        return res.status(401).json({
-            msg:'Ningun token encontrado'
-        })
+        throw Error('Ningun token encontrado')
     };
 
     if(!verify(token,process.env.JWT_KEY!)){
-        return res.status(401).json({
-            msg:'Token invalido encontrado'
-        })
+        throw Error(
+            'Token invalido encontrado'
+        )
     };
 
-    next();
+    return true;
 }

@@ -39,3 +39,4 @@ const listTables = (params) => __awaiter(void 0, void 0, void 0, function* () {
 });
 exports.listTables = listTables;
 exports.default = db;
+//# sourceMappingURL=db.js.map

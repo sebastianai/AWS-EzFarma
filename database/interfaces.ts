@@ -29,9 +29,13 @@ export interface StreamSpecification {
     StreamEnabled: boolean;
 }
 
-export interface newQuery{
+export interface putQuery{
     TableName:string,
     Item: {
         
     }
+}
+
+export interface getQuery{
+    
 }

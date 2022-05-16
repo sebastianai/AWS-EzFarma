@@ -41,3 +41,4 @@ const handlerErrorResult = (req, res, next) => {
     next();
 };
 exports.handlerErrorResult = handlerErrorResult;
+//# sourceMappingURL=index.js.map

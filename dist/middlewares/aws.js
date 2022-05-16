@@ -17,7 +17,7 @@ const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
 const AWS_1 = __importDefault(require("../AWS"));
 const validateIAMUser = (username) => __awaiter(void 0, void 0, void 0, function* () {
 });
-const validateObject = (tableName, searchField, key, sort) => __awaiter(void 0, void 0, void 0, function* () {
+const validateObject = (tableName, searchField, key, needed = false, sort) => __awaiter(void 0, void 0, void 0, function* () {
     const db = AWS_1.default.DynamoDB;
     try {
         const params = {
@@ -29,9 +29,15 @@ const validateObject = (tableName, searchField, key, sort) => __awaiter(void 0, 
         if (sort)
             params.Key = { key, sort };
         const query = yield db.send(new client_dynamodb_1.GetItemCommand(params));
-        console.log(query);
         if (query.Item) {
-            throw Error('Primary key ya existente');
+            if (needed != true) {
+                throw Error('No se encontro el objecto');
+            }
+        }
+        else {
+            if (needed) {
+                throw Error('No se encontro el objecto');
+            }
         }
         return true;
     }
@@ -40,3 +46,4 @@ const validateObject = (tableName, searchField, key, sort) => __awaiter(void 0, 
     }
 });
 exports.validateObject = validateObject;
+//# sourceMappingURL=aws.js.map

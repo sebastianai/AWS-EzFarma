@@ -8,3 +8,4 @@ const users_1 = __importDefault(require("./users"));
 exports.userRoutes = users_1.default;
 const pharmacy_1 = __importDefault(require("./pharmacy"));
 exports.pharmacyRoutes = pharmacy_1.default;
+//# sourceMappingURL=index.js.map

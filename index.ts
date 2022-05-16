@@ -1,7 +1,7 @@
 import * as dot from 'dotenv';
 import ApplicationServer from './server/server';
 
-dot.config()
+dot.config();
 
 const server = new ApplicationServer();
 
