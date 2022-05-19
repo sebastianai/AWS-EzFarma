@@ -4,6 +4,7 @@ import  AWS  from '../AWS';
 import { Table } from './interfaces';
 
 const db = AWS.DynamoDB;
+export const document = AWS.DocumentClient;
 
 export const createTable = async( params: Table ):Promise<CreateTableCommandOutput | undefined> => {
     try {
@@ -18,7 +19,7 @@ export const createTable = async( params: Table ):Promise<CreateTableCommandOutp
 export const listTables = async(params:ListTablesCommandInput):Promise<ListTablesCommandOutput | undefined> => {
     try {
         const data = await db.send(new ListTablesCommand(params));
-        console.log("Table Created", data);
+        console.log("Tables", data);
         return data;
       } catch (err) {
         console.log("Error", err);

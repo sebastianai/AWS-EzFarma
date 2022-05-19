@@ -3,14 +3,19 @@ import {
   BatchGetItemCommandInput,
   BatchWriteItemCommand,
   BatchWriteItemCommandInput,
+  QueryCommand,
 } from "@aws-sdk/client-dynamodb";
-import {  Response } from "express";
+import {  Request,Response } from "express";
 import { decode, JwtPayload } from "jsonwebtoken";
 import aws from "../AWS";
 import { files } from "../helpers";
 import { transformArrToBatch } from "../helpers/aws";
+import { GetCommand, GetCommandInput, QueryCommandInput } from '@aws-sdk/lib-dynamodb';
+import { GetCustomParams } from "models/Requests";
 
 const db = aws.DynamoDB;
+const document = aws.DocumentClient;
+
 export const uploadList = async (req: any, res: Response) => {
   try {
   const queryParams = Object.entries(req.query) as [string, any];
@@ -20,7 +25,7 @@ export const uploadList = async (req: any, res: Response) => {
                                           .map((elem) => elem[1]);
 
   const { payload } = decode(req.headers.token) as JwtPayload;
-  const [email, enterpriseName] = payload;
+  const [, enterpriseName] = payload;
 
   let batchRequest:any[] = [];
   req.files.forEach((elem: Express.Multer.File, i: number) => {
@@ -61,18 +66,23 @@ export const uploadList = async (req: any, res: Response) => {
   }
 };
 
-export const getLists = async (req: any, res: Response) => {
+export const getLists = async (req: Request, res: Response) => {
   try {
-    const { payload } = decode(req.headers.token) as JwtPayload;
+    const catalogo = req.params.catalogo
+    const { payload } = decode(req.headers.token as string) as JwtPayload;
     const [email, enterpriseName] = payload;
 
     const params:BatchGetItemCommandInput = {
-      RequestItems: {
-        "Farmacias": {
-          Keys: [{ "Nombre": { S: enterpriseName },
-        "Catalogo-Nombre":{S:"Mediven"} }],
-        },
-      },
+      RequestItems:{
+        "Farmacias":{
+          Keys:[
+            {
+              "Nombre":{S:enterpriseName},
+              "Catalogo-Nombre":{S:catalogo}
+            }
+          ]
+        }
+      }
     };
 
     const results = await db.send(new BatchGetItemCommand(params));
@@ -86,3 +96,7 @@ export const getLists = async (req: any, res: Response) => {
     });
   }
 };
+
+export const updateCart = async(req:any,res:Response) => {
+  
+}

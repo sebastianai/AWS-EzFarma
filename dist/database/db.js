@@ -12,10 +12,11 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.listTables = exports.createTable = void 0;
+exports.listTables = exports.createTable = exports.document = void 0;
 const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
 const AWS_1 = __importDefault(require("../AWS"));
 const db = AWS_1.default.DynamoDB;
+exports.document = AWS_1.default.DocumentClient;
 const createTable = (params) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = yield db.send(new client_dynamodb_1.CreateTableCommand(params));
@@ -30,7 +31,7 @@ exports.createTable = createTable;
 const listTables = (params) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const data = yield db.send(new client_dynamodb_1.ListTablesCommand(params));
-        console.log("Table Created", data);
+        console.log("Tables", data);
         return data;
     }
     catch (err) {

@@ -1,7 +1,7 @@
 export interface User{
     email:string;
     password:string;
-    role: pharmacy | drogstore;
+    Role: pharmacy | drogstore;
 }
 
 export interface pharmacy{

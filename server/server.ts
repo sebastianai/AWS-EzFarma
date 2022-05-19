@@ -1,4 +1,5 @@
 import express,{ Application, Request, Response } from 'express';
+import cookies from 'cookie-parser';
 import cors from 'cors';
 import path from 'path';
 
@@ -17,6 +18,7 @@ export default class Server {
 
     private middlewares(){
         this.express.use(cors());
+        this.express.use(cookies());
         this.express.use(express.json());
         this.express.use(express.static('public'));
 

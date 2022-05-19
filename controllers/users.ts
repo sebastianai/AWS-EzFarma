@@ -1,23 +1,24 @@
 import { Request, Response } from 'express';
 import { PutItemCommand, GetItemCommand, GetItemCommandInput, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
+import { GetCommand, GetCommandInput } from '@aws-sdk/lib-dynamodb';
 import { decode, JwtPayload } from 'jsonwebtoken';
 import { User } from 'models/User';
 
-import db from '../database/db';
+import db,{ document } from '../database/db';
 
 import { bcrypt} from '../helpers';
 import { comparePassword } from '../helpers/bcrypt';
 import { createJWT, checkExpJWT } from '../helpers/jwt';
 
 export const createUser = async(req:Request<{},{},User>, res:Response) => {
-    let {email,password,role} = req.body;
+    let {email,password,Role} = req.body;
 
     password = bcrypt.encryptPassword(password);
 
     const user:User = {
         email,
         password,
-        role
+        Role
     }
     const params:PutItemCommandInput = {
         TableName:'Users',
@@ -29,7 +30,7 @@ export const createUser = async(req:Request<{},{},User>, res:Response) => {
                 S:user.password
             },
             "role":{
-                M: JSON.parse(JSON.stringify(user.role))
+                M: JSON.parse(JSON.stringify(user.Role))
             }
         }
     }
@@ -53,48 +54,80 @@ export const createUser = async(req:Request<{},{},User>, res:Response) => {
 }
 
 export const login = async(req:Request<{},{},User>,res:Response) =>{
-    const {email,password} = req.body;
+    let {email,password} = req.body;
 
-    const query:GetItemCommandInput = {
+    const query:GetCommandInput = {
         TableName:'Users',
         Key:{
-            "email":{
-                S:email
-            }
+            "email":email
         }
     }
 
-    const result = await db.send(new GetItemCommand(query))
-    if(!result.Item?.password || !result.Item?.email){
+    const result = await (await document.send(new GetCommand(query))).Item as User
+
+    if(!result?.password || !result?.email){
         return res.status(502).json({
-            msg:'Usuario invalido'
+            msg:'Usuario invalido',
+            ok:false
         })
     }
-    if(!comparePassword(password,result.Item!.password.S!)){
+    if(!comparePassword(password,result.password)){
         return res.status(400).json({
             msg:'Usuario o contraseñas inválidas',
             ok:false
         })
     }
-    
 
-    const token = await createJWT(result.Item!.email.S!,result.Item!.Role.M?.enterpriseName.S!)
-
-    return res.json({
-        token
+    const token = await createJWT(result.email,result.Role.enterpriseName)
+    let {password:drop,...user} = result
+    return res.cookie("token",token,{httpOnly:true,secure:true}).json({
+        data:user,
+        token,
+        ok:true
     })
 }
 
+export const logout = (req:Request,res:Response) => {
+    return res.clearCookie('token').end();
+}
+
 export const renewToken = async(req:Request,res:Response) => {
-    const token = req.headers['token'] as string
+    const token = req.cookies['token'] as string
     if(!checkExpJWT(token)){
         const {payload} = decode(token) as JwtPayload
         const newToken = await createJWT(payload[0])
-        return res.json({
-            token:newToken
+        return res.cookie('token',newToken,{httpOnly:true,secure:true}).json({
+            token:newToken,
+            ok:true
         })
     }
     return res.json({
-        token
+        token,
+        ok:true
     })
+}
+
+export const getUser = async(req:Request,res:Response) =>
+{
+    const token = req.cookies['token'] || req.headers['token'] as string
+    if(checkExpJWT(token)){
+        const {payload} = decode(token) as JwtPayload
+        const [email] = payload as [string,string];
+        const params:GetCommandInput = {
+            TableName:"Users",
+            Key:{"email":email}
+        }
+        const result = await document.send(new GetCommand(params))
+        if(!result){
+            return res.status(400).json({
+                msg:`No se encontro un usuario con el correo`,
+                ok:false
+            })
+        }
+        const {password,...user} = result.Item as User
+        return res.json({
+            data:user,
+            ok:true
+        })
+    }
 }

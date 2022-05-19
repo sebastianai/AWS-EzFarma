@@ -1,8 +1,6 @@
-import {Request,Response,NextFunction} from 'express';
 import {  verify } from 'jsonwebtoken';
 
 export const verifyToken = (token:string) => {
-
     if(!token){
         throw Error('Ningun token encontrado')
     };

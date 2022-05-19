@@ -99,5 +99,8 @@ typings/
 # DynamoDB Local files
 .dynamodb/
 
+# Templates
+/AWS-TEMPLATE
+
 # TernJS port file
 .tern-port

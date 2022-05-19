@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
+const lib_dynamodb_1 = require("@aws-sdk/lib-dynamodb");
 const client_iam_1 = require("@aws-sdk/client-iam");
 const client_s3_1 = require("@aws-sdk/client-s3");
 const client_1 = require("./client");
@@ -11,6 +12,7 @@ class AWS {
     constructor(s3Client) {
         this._s3 = undefined;
         this._dynamoDB = undefined;
+        this._documentClient = undefined;
         this._iam = undefined;
         this.client = s3Client;
         console.log('AWS instance created');
@@ -29,6 +31,21 @@ class AWS {
             this._dynamoDB = new client_dynamodb_1.DynamoDBClient({ region: 'us-east-1' });
         }
         return this._dynamoDB;
+    }
+    get DocumentClient() {
+        if (!this._documentClient) {
+            const marshallOptions = {
+                convertEmptyValues: false,
+                removeUndefinedValues: false,
+                convertClassInstanceToMap: true
+            };
+            const unmarshallOptions = {
+                wrapNumbers: false
+            };
+            const translateConfig = { marshallOptions, unmarshallOptions };
+            this._documentClient = lib_dynamodb_1.DynamoDBDocumentClient.from(this.DynamoDB, translateConfig);
+        }
+        return this._documentClient;
     }
     get IAM() {
         if (!this._iam)

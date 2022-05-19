@@ -1,4 +1,5 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 import { IAMClient } from '@aws-sdk/client-iam';
 import { S3, S3Client } from "@aws-sdk/client-s3";
 
@@ -12,6 +13,7 @@ class AWS{
 
     protected _s3:S3 | undefined = undefined;
     protected _dynamoDB:DynamoDBClient | undefined = undefined;
+    protected _documentClient:DynamoDBDocumentClient | undefined = undefined;
     protected _iam:IAMClient | undefined = undefined;
 
     constructor(s3Client:S3Client){
@@ -33,8 +35,25 @@ class AWS{
         if(!this._dynamoDB){
             this._dynamoDB = new DynamoDBClient({region:'us-east-1'});
         } 
-
         return this._dynamoDB;
+    }
+    get DocumentClient(){
+        if(!this._documentClient){
+            const marshallOptions = {
+                convertEmptyValues: false,
+                removeUndefinedValues: false,
+                convertClassInstanceToMap: true
+            };
+            
+            const unmarshallOptions = {
+                wrapNumbers: false
+            };
+            
+            const translateConfig = { marshallOptions, unmarshallOptions };
+            
+            this._documentClient = DynamoDBDocumentClient.from(this.DynamoDB,translateConfig)
+        }
+        return this._documentClient
     }
 
 
