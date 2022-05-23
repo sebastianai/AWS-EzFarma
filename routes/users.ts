@@ -13,9 +13,8 @@ router.get('',[
     , userController.getUser)
 
 router.post('',
-            [body('email', 'Campo inválido').notEmpty().bail().isEmail().custom((email) => aws.validateObject("Users","email",{S:email})).bail(),
-             body('password','Campo inválido').notEmpty().bail().isLength({min:6}),
-             body('role','Campo inválido').notEmpty().isObject(),
+            [body('email', 'Campo inválido').notEmpty().bail().isEmail(),
+             body('Role','Campo inválido').notEmpty().isObject(),
              handlerErrorResult],
             userController.createUser)
 

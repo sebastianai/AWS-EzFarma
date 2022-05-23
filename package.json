@@ -16,10 +16,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@aws-sdk/client-cognito-identity-provider": "^3.94.0",
     "@aws-sdk/client-dynamodb": "^3.87.0",
     "@aws-sdk/client-iam": "^3.87.0",
     "@aws-sdk/client-s3": "^3.86.0",
     "@aws-sdk/lib-dynamodb": "^3.92.0",
+    "@aws-sdk/util-dynamodb": "^3.95.0",
     "@types/multer": "^1.4.7",
     "bcrypt": "^5.0.1",
     "cookie-parser": "^1.4.6",

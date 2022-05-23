@@ -1,41 +1,41 @@
 import { Request, Response } from 'express';
-import { PutItemCommand, GetItemCommand, GetItemCommandInput, PutItemCommandInput } from '@aws-sdk/client-dynamodb';
+import { AdminCreateUserCommand, AdminCreateUserCommandInput } from '@aws-sdk/client-cognito-identity-provider';
 import { GetCommand, GetCommandInput } from '@aws-sdk/lib-dynamodb';
 import { decode, JwtPayload } from 'jsonwebtoken';
 import { User } from 'models/User';
 
 import db,{ document } from '../database/db';
+import aws from '../AWS';
 
 import { bcrypt} from '../helpers';
 import { comparePassword } from '../helpers/bcrypt';
 import { createJWT, checkExpJWT } from '../helpers/jwt';
 
-export const createUser = async(req:Request<{},{},User>, res:Response) => {
-    let {email,password,Role} = req.body;
+const cognito = aws.Cognito;
 
-    password = bcrypt.encryptPassword(password);
-
-    const user:User = {
-        email,
-        password,
-        Role
-    }
-    const params:PutItemCommandInput = {
-        TableName:'Users',
-        Item:{
-            "email":{
-                S:user.email
+export const createUser = async(req:Request<{pool:string},{},User>, res:Response) => {
+    let {email,Role} = req.body;
+    const pool = req.params.pool || 'Farmacias';
+    const params:AdminCreateUserCommandInput = {
+        Username:email,
+        UserPoolId:pool,
+        UserAttributes:[
+            {
+                Name:'enterpriseName',
+                Value:Role.enterpriseName
             },
-            "password":{
-                S:user.password
+            {
+                Name:'name',
+                Value:Role.name
             },
-            "role":{
-                M: JSON.parse(JSON.stringify(user.Role))
+            {
+                Name:'email',
+                Value:email
             }
-        }
+        ]
     }
     try {
-       const data = await db.send(new PutItemCommand(params))
+       const data = await cognito.send(new AdminCreateUserCommand(params))
        return res.json({
            msg:"Operacion exitosa",
            data,
@@ -71,7 +71,7 @@ export const login = async(req:Request<{},{},User>,res:Response) =>{
             ok:false
         })
     }
-    if(!comparePassword(password,result.password)){
+    if(!comparePassword(password!,result.password)){
         return res.status(400).json({
             msg:'Usuario o contraseñas inválidas',
             ok:false

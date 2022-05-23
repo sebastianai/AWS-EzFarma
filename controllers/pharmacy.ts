@@ -1,17 +1,16 @@
+import util from 'util';
 import {
   BatchGetItemCommand,
   BatchGetItemCommandInput,
   BatchWriteItemCommand,
   BatchWriteItemCommandInput,
-  QueryCommand,
 } from "@aws-sdk/client-dynamodb";
 import {  Request,Response } from "express";
 import { decode, JwtPayload } from "jsonwebtoken";
 import aws from "../AWS";
 import { files } from "../helpers";
-import { transformArrToBatch } from "../helpers/aws";
-import { GetCommand, GetCommandInput, QueryCommandInput } from '@aws-sdk/lib-dynamodb';
-import { GetCustomParams } from "models/Requests";
+import { marshall, unmarshall} from '@aws-sdk/util-dynamodb';
+import { Item, PutRequest } from '../helpers/interfaces';
 
 const db = aws.DynamoDB;
 const document = aws.DocumentClient;
@@ -36,23 +35,25 @@ export const uploadList = async (req: any, res: Response) => {
         if (err) throw Error(err);
       }
     );
-    const PutRequest = transformArrToBatch(catalogoJson, {
-      Name: enterpriseName,
-      KeySchema: "Descripcion",
-      Drogstore: Droguerias[i],
-    });
-    batchRequest.push({PutRequest})
+    const Record = {
+        'Nombre':enterpriseName,
+        "Catalogo-Nombre":Droguerias[i],
+        "Pagina":Catalogos[i],
+        "Productos":catalogoJson
+
+    };
+    const PutRequest = {
+      Item:marshall(Record)
+    };
+    batchRequest.push({PutRequest:PutRequest});
   });
 
   const params:BatchWriteItemCommandInput = {
     RequestItems:{
       Farmacias:batchRequest
     }
-  }
-
+  };
   const result = await db.send(new BatchWriteItemCommand(params));
-  
-  
   return res.json({
     data: result,
     ok: true,
@@ -68,7 +69,7 @@ export const uploadList = async (req: any, res: Response) => {
 
 export const getLists = async (req: Request, res: Response) => {
   try {
-    const catalogo = req.params.catalogo
+    const catalogo = req.params.catalogo;
     const { payload } = decode(req.headers.token as string) as JwtPayload;
     const [email, enterpriseName] = payload;
 
@@ -94,7 +95,7 @@ export const getLists = async (req: Request, res: Response) => {
       msg: error?.message,
       ok: false,
     });
-  }
+  };
 };
 
 export const updateCart = async(req:any,res:Response) => {

@@ -4,6 +4,7 @@ import { IAMClient } from '@aws-sdk/client-iam';
 import { S3, S3Client } from "@aws-sdk/client-s3";
 
 import { s3Client as config } from './client';
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 
 /**
  * @param  {S3Client} s3Client Config options from AWS service like Region, Credentials, etc.
@@ -15,6 +16,7 @@ class AWS{
     protected _dynamoDB:DynamoDBClient | undefined = undefined;
     protected _documentClient:DynamoDBDocumentClient | undefined = undefined;
     protected _iam:IAMClient | undefined = undefined;
+    protected _cognito:CognitoIdentityProviderClient | undefined = undefined;
 
     constructor(s3Client:S3Client){
         this.client = s3Client;
@@ -25,15 +27,16 @@ class AWS{
         return {...this.client};
     }
 
-    get S3(){
-        if(!this._s3){
-            this._s3 = new S3(this.client);
+    get Cognito(){
+        if(!this._cognito){
+            this._cognito = new CognitoIdentityProviderClient(this.client)
         }
-        return this._s3
+        return this._cognito;
     }
+
     get DynamoDB(){
         if(!this._dynamoDB){
-            this._dynamoDB = new DynamoDBClient({region:'us-east-1'});
+            this._dynamoDB = new DynamoDBClient(this.client);
         } 
         return this._dynamoDB;
     }
@@ -55,15 +58,22 @@ class AWS{
         }
         return this._documentClient
     }
-
-
+    
+    
     get IAM(){
         if(!this._iam) this._iam = new IAMClient(this.client);
-
+        
         return this._iam;
     }
 
-
+    get S3(){
+        if(!this._s3){
+            this._s3 = new S3(this.client);
+        }
+        return this._s3
+    }
+    
+    
     closeConnection(){
         this.client.destroy();
         this._dynamoDB?.destroy();
