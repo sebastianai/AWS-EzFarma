@@ -45,7 +45,6 @@ const uploadList = (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 Item: (0, util_dynamodb_1.marshall)(Record)
             };
             batchRequest.push({ PutRequest: PutRequest });
-            console.log(catalogoJson.length);
         });
         const params = {
             RequestItems: {
@@ -94,6 +93,7 @@ const getLists = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
             ok: false,
         });
     }
+    ;
 });
 exports.getLists = getLists;
 const updateCart = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
