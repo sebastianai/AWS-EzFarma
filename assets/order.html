@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8">
+</head>
+<body class="purchaseorder-pdf" style="width:99%;font-size: 23px;">
+    <style>
+        h6{
+            margin: 5px;
+        }
+    </style>
+    <img src="data:image/png;base64,{{logo}}" style="margin-left: 40px; margin-top: 40px;" height="100px" width="100px" alt="brand-logo">
+    <header id="details" style="display: -webkit-inline-flex;width: 100%;">
+        <div class="brand-info" style="width: 50%;">
+            <ul style="list-style: none;">
+                <li>
+                    <span>
+                        <h6>Compañia: Ezfarma SPA</h6>
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <h6>Dirección: </h6>
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <h6>Teléfono: </h6>
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <h6>Email:</h6>
+                    </span>
+                </li>
+            </ul>
+        </div>
+        <div class="brand-details" style="width: 50%;">
+            <ul style="list-style: none;">
+                <li>
+                    <span>
+                        <h6>Referencia: {{ details.purchaseID }}</h6>
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <h6>ID Cliente: {{ details.customerID }}</h6>
+                    </span>
+                </li>
+                <li>
+                    <span>
+                        <h6>Fecha Creación: {{ details.date }}</h6>
+                    </span>
+                </li>
+            </ul>
+        </div>
+    </header>
+    <main id="document">
+        <div id="documenthead">
+            <div id="customer">
+                <h5>Remitente</h5>
+                <ul style="list-style: none;">
+                    <li>
+                        <span>
+                            <h6>Rut: {{ user.rut }}</h6>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <h6>Razón Social: {{ user.enterpriseName }}</h6>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <h6>Nombre: {{ user.name }}</h6>
+                        </span>
+                    </li>
+                    <li>
+                        <span style="display: -webkit-inline-flex; width: 98%;">
+                            <h6 style="width: 50%;">Dirección: </h6>
+                            <h6 style="width: 50%;">Telefono: </h6>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+            <div id="Seller">
+                {{#ifCond seller "!=" undefined }}
+                <h5>Vendedor</h5>
+                <ul>
+                    <li>
+                        <span>
+                            <h6>Rut: {{ user.rut }}</h6>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <h6>Razón Social: {{ user.enterpriseName }}</h6>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <h6>Nombre: {{ user.name }}</h6>
+                        </span>
+                    </li>
+                    <li>
+                        <span>
+                            <h6>Dirección: </h6>
+                            <h6>Telefono: </h6>
+                        </span>
+                    </li>
+                </ul>
+                {{/ifCond}}
+            </div>
+            
+        </div>
+        <div class="content">
+            <h5>Pedido</h5>
+              <div id="products" class="products">
+                  <table style="border: 1px solid black; width: 99%;">
+                      <thead>
+                      <tr>
+                          <th class="column-productcode" style="border: 1px solid black;">ID Producto</th>
+                          <th class="column-name" style="border: 1px solid black;">Descripcion</th>
+                          <th class="right column-amount" style="border: 1px solid black;">Cantidad</th>
+                          <th class="right column-price" style="border: 1px solid black;">Precio</th>
+                          <th class="right column-total-price" style="border: 1px solid black;">Subtotal</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        {{#each products.prodlist }}
+                        <tr>
+                            <td class="column-productcode" style="border: 1px solid black;">{{ this.Producto_ID }}</td>
+                            <td class="column-name" style="border: 1px solid black;">{{ this.Descripcion }}</td>
+                            <td class="right column-amount" style="border: 1px solid black;">{{ this.Cantidad }}</td>
+                            <td class="right column-price" style="border: 1px solid black;">{{ this.Precio }}</td>
+                            <td class="right column-total-price" style="border: 1px solid black;">{{ this.Total }}</td>
+                        </tr>
+                        {{/each}}
+                    </tbody>
+                    <tfoot>
+                    <tr>
+                        <td colspan="4" class="align-right"><strong>Total:</strong></td>
+                        <td id="totalamount" class="align-right nowrap column-amount">{{ products.subtotal}}</td>
+                    </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

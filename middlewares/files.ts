@@ -1,7 +1,7 @@
 
 
 export const validateExtension = (extension: string, ...args: string[]) =>(req: any) => {
-    if(!req?.files){
+    if(!(req?.files ?? req?.file ?? undefined)){
       throw Error('Ningún archivo encontrado.')
     }
     if(req.files){
@@ -12,6 +12,13 @@ export const validateExtension = (extension: string, ...args: string[]) =>(req: 
           throw Error(`El tipo de archivo ${fileExtension} no es compatible \n TIP: ${extension} ${args}`)
         };
       });
+    }
+    if(req.file){
+      const fileName:string = req.file.originalname;
+        const fileExtension:string = fileName.split('.').at(-1)!.toLowerCase();
+        if(fileExtension != extension && !args.includes(fileExtension)){
+          throw Error(`El tipo de archivo ${fileExtension} no es compatible \n TIP: ${extension} ${args}`)
+        };
     }
     return true
 };

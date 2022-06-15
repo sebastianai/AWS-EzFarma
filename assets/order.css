@@ -1,0 +1,77 @@
+body,html{
+    margin: 0px;
+    font-size: 23px;
+    width: 700px;
+}
+body > *{
+    padding:0px 10px 0px 10px;
+}
+
+h5{
+    position: relative;
+}
+
+h1,h2,h3{
+    color: #2C2F84;
+}
+
+h5::after{
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: 300px;
+    background-color: black;
+    top: 24px;
+    left: 0px;
+}
+ul{
+    list-style: none;
+}
+
+ul li {
+   height: 30px;
+}
+
+ul li span {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+ul li span h6 {
+    margin: 0px;
+}
+
+table{
+    width: 100%;
+}
+
+table, th, td {
+    border: 1px solid black;
+  }
+
+div#details{
+    display: flex;
+    justify-content: space-between;
+}
+
+div#details .brand-details{
+    height: 100%;
+    width: 300px;
+}
+
+div#document #documenthead #customer{
+    display: block;
+    position: relative;
+}
+
+
+div#document > #documenthead{
+    display: flex;
+    flex-direction:row;
+    justify-content: space-between;
+}
+
+div#document #documenthead #customer,#destinatary ul li {
+    height: 30px;
+}

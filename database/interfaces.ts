@@ -29,13 +29,9 @@ export interface StreamSpecification {
     StreamEnabled: boolean;
 }
 
-export interface putQuery{
-    TableName:string,
-    Item: {
-        
-    }
+export interface mysqlWhere{
+    key:string;
+    value:string | number | boolean;
+    type:'=' | '>' | '<' | '>=' | '<=' | '<>' | 'BETWEEN' | 'LIKE' | 'IN';
 }
 
-export interface getQuery{
-    
-}

@@ -13,8 +13,29 @@ export const transformExcelToJson = (
   }
   const headerLine = findHeaders(sheet.Sheets[sheetName]);
   return  xlsx.utils.sheet_to_json(sheet.Sheets[sheetName], { range: headerLine,blankrows:false,dateNF:'mm/yyyy' })
-
 };
+
+export const transformExcelToCsv = (
+  file:Express.Multer.File,
+  sheetName:string,
+  sellType:string,
+  callback:CallableFunction,
+  category?:string
+) => {
+  let sheet = xlsx.read(file.buffer)
+  if(!sheet.SheetNames.includes(sheetName)){
+    return callback(
+      `Error, El archivo no contiene la hoja llamada: ${sheetName}, Hojas disponibles: ${sheet.SheetNames} `
+    );
+  }
+  let json = xlsx.utils.sheet_to_json(sheet.Sheets[sheetName],{header:0,defval:'',raw:true,rawNumbers:true});
+  json.forEach((obj:any) => {
+    obj['Tipo Venta'] = sellType
+    obj['Tipo Producto'] = category || 0
+  })
+  let newSheet = xlsx.utils.json_to_sheet(json);
+  return xlsx.utils.sheet_to_csv(newSheet,{FS:';',RS:'\n',dateNF:'YYYY-MM-dd'})
+}
 
 export const findHeaders = (book: xlsx.WorkSheet): Number => {
   var range = xlsx.utils.decode_range(book["!ref"]!);

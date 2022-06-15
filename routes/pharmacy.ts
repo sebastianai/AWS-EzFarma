@@ -1,29 +1,41 @@
 import { Response,Request, Router } from 'express';
-import { body, check, param, cookie } from 'express-validator';
+import { body, check, param, cookie, query } from 'express-validator';
 import multer from "multer";
 
 import { pharmacyController } from '../controllers';
-import { handlerErrorResult, files,jwt,aws } from '../middlewares';
+import { handlerErrorResult, files,jwt,aws, utils } from '../middlewares';
 
 const storage = multer.memoryStorage();
 const upload = multer({storage:storage,limits: { fieldSize: 10 * 1024 * 1024 } })
 
 const router = Router();
 
-router.get('',[
-    cookie('token').custom(jwt.verifyToken),
-    param("catalogo").notEmpty().bail().custom((value)=>  aws.validateObject("Farmacias","Nombre",{S:"Farmacia de prueba"},value)),
-    handlerErrorResult
-] ,pharmacyController.getLists)
+router.get('',
+            [
+             cookie('CognitoIdentityServiceProvider.*.accessToken').notEmpty().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).custom((token,{req}) => aws.CognitoValidateUserByToken(req.token)),
+             handlerErrorResult
+            ],pharmacyController.getLists)
 
 router.post('/upload',
             [
-            cookie('token'),
+             cookie('CognitoIdentityServiceProvider.*.accessToken').notEmpty().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).custom((token,{req}) => aws.CognitoValidateUserByToken(req.token,req)).bail(),
              upload.array('Catalogo'),
-            check('Catalogo').custom((value,{req}) => files.validateExtension('xls','xlsx')(req)),
+             check('Catalogo').custom((value,{req}) => files.validateExtension('xls','xlsx')(req)).bail(),
+             body('Drogueria','Campo inválido').notEmpty(),
+             body('Pagina','Campo inválido').notEmpty(),
+             body('Valido_desde','Campo inválido').notEmpty(),
+             body('Valido_hasta','Campo inválido').notEmpty(),
              handlerErrorResult
             ],
             pharmacyController.uploadList
+)
+
+router.get('/stats',
+            [
+                cookie('CognitoIdentityServiceProvider.*.accessToken').notEmpty().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).custom((token,{req}) => aws.CognitoValidateUserByToken(req.token,req)).bail(),
+                handlerErrorResult
+            ],
+            pharmacyController.getStats
 )
 
 export default router;
