@@ -5,7 +5,11 @@ export const transformExcelToJson = (
   sheetName: string,
   callback: CallableFunction
 ):object[] => {
+<<<<<<< HEAD
   let sheet = xlsx.read(file.buffer,{sheetRows:1000});
+=======
+  let sheet = xlsx.read(file.buffer,{sheetRows:2000});
+>>>>>>> fffd16d59cb92c7a32ac702c4c385cc5cca41f79
   if (!sheet.SheetNames.includes(sheetName)) {
     return callback(
       `Error, El archivo no contiene la hoja llamada: ${sheetName}, Hojas disponibles: ${sheet.SheetNames} `
