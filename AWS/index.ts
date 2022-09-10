@@ -1,9 +1,10 @@
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
-import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
+import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 import { S3, S3Client } from "@aws-sdk/client-s3";
+import { SES} from '@aws-sdk/client-ses';
+import { DynamoDBDocumentClient } from "@aws-sdk/lib-dynamodb";
 
 import { s3Client as config } from './client';
-import { CognitoIdentityProviderClient } from '@aws-sdk/client-cognito-identity-provider';
 
 /**
  * @param  {S3Client} s3Client Config options from AWS service like Region, Credentials, etc.
@@ -12,6 +13,7 @@ class AWS{
     private client:S3Client;
 
     protected _s3:S3 | undefined = undefined;
+    protected _ses:SES| undefined = undefined;
     protected _dynamoDB:DynamoDBClient | undefined = undefined;
     protected _documentClient:DynamoDBDocumentClient | undefined = undefined;
     protected _cognito:CognitoIdentityProviderClient | undefined = undefined;
@@ -22,7 +24,7 @@ class AWS{
     }
 
     get Client(){
-        return {...this.client};
+        return this.client;
     }
 
     get Cognito(){
@@ -36,8 +38,16 @@ class AWS{
         if(!this._s3){
             this._s3 = new S3(this.client);
         }
-        return this._s3
+        return this._s3;
     }
+
+    get SES(){
+        if(!this._ses){
+            this._ses = new SES(this.client);
+        }
+        return this._ses;
+    }
+
     get DynamoDB(){
         if(!this._dynamoDB){
             this._dynamoDB = new DynamoDBClient(this.client);
@@ -57,16 +67,18 @@ class AWS{
             const translateConfig = { marshallOptions, unmarshallOptions };
             this._documentClient = DynamoDBDocumentClient.from(this.DynamoDB,translateConfig)
         }
-        return this._documentClient
+        return this._documentClient;
     }
 
 
     closeConnection(){
         this.client.destroy();
         this._dynamoDB?.destroy();
+        this._cognito?.destroy();
+        this._s3?.destroy();
     }
 }
 
 const aws = new AWS(config);
 
-export default aws
+export default aws;

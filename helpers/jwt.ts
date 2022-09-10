@@ -22,19 +22,3 @@ export const createJWT  = (...payload:string[]) => {
         })
     })
 }
-
-<<<<<<< HEAD
-
-export const decodeJWT  = (token:string) => {
-    const decoded = decode(token) as JwtPayload;
-    console.log(decoded)
-=======
-export const checkExpJWT = (token:string) => {
-    const jwt = decode(token) as JwtPayload
-    const now = Math.floor(Date.now() / 1000)
-    if(jwt.exp! < now){
-        return false
-    }
-    return true
->>>>>>> fffd16d59cb92c7a32ac702c4c385cc5cca41f79
-}

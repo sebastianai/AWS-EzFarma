@@ -2,7 +2,7 @@
 import ApplicationServer from './server/server';
 
 const startApp =() =>{
-    const server = new ApplicationServer();
+    const server = ApplicationServer;
     server.listen();
 }    
 

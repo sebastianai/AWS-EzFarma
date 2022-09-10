@@ -1,24 +1,27 @@
+import { Request } from "express-validator/src/base";
 import { AttributeValue, GetItemCommand, GetItemCommandInput } from '@aws-sdk/client-dynamodb';
-import { AdminGetUserCommand, AdminGetUserCommandInput, GetUserCommand, GetUserCommandInput, ListUserPoolsCommand, ListUserPoolsCommandInput, UserPoolDescriptionType } from '@aws-sdk/client-cognito-identity-provider';
+import { AdminGetUserCommand, AdminGetUserCommandInput, GetUserCommand, GetUserCommandInput, ListGroupsCommand, ListGroupsCommandInput } from '@aws-sdk/client-cognito-identity-provider';
 
 import AWS from '../AWS';
 import { mySQL } from '../database/db';
 import { mysqlWhere } from 'database/interfaces';
+import { Console } from "console";
 
 const cognito = AWS.Cognito;
 
 export const CognitoValidatePools = async (pool: string) => {
     try {
-        const params: ListUserPoolsCommandInput = {
-            MaxResults: 30
+        const params: ListGroupsCommandInput = {
+             UserPoolId:process.env.POOL_ID,
+             Limit:30
         }
-        const { UserPools } = await cognito.send(new ListUserPoolsCommand(params))
-        if (!UserPools) {
+        const { Groups } = await cognito.send(new ListGroupsCommand(params))
+        if (!Groups) {
             throw Error('Ningun grupo de usuarios encontrado')
         }
-        const pools = UserPools.filter(({ Name }) => Name === pool)
+        const pools = Groups.filter(({ GroupName }) => GroupName === pool)
         if (pools.length === 0) {
-            throw Error(`${pool} no pertenece a ningun grupo - Grupos displonibles ${UserPools.map((p) => p.Name)}`)
+            throw Error(`${pool} no pertenece a ningun grupo - Grupos displonibles ${Groups.map((p) => p.GroupName)}`)
         }
 
         return true
@@ -28,17 +31,12 @@ export const CognitoValidatePools = async (pool: string) => {
 }
 
 export const CognitoValidateUserByField = (field: string, value: string, requiredExists:boolean = false) => {
-    return async (req: any) => {
+    return async (req: Request) => {
         try {
             const email = req.body.email;
-            const poolParams: ListUserPoolsCommandInput = {
-                MaxResults: 30
-            }
-            const { UserPools } = await cognito.send(new ListUserPoolsCommand(poolParams))
-            const pool = UserPools?.find(({ Name }) => Name === req.params.type)?.Id
             const params: AdminGetUserCommandInput = {
                 Username: email,
-                UserPoolId: pool
+                UserPoolId: process.env.POOL_ID
             }
             const user = await cognito.send(new AdminGetUserCommand(params));
             const userExists = user.UserAttributes?.find((att) => att.Name === field && att.Value === value)
@@ -59,7 +57,7 @@ export const CognitoValidateUserByField = (field: string, value: string, require
 export const CognitoValidateUserByToken = async(access_token: string,req?:any) => {
     try {
         const params: GetUserCommandInput = {
-            AccessToken: req.token
+            AccessToken: access_token || req.token
         }
         const user = await cognito.send(new GetUserCommand(params));
         if(req){

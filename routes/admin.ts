@@ -16,7 +16,7 @@ router.post('/upload',
              upload.single('Catalogo'),
             check('Catalogo').custom((value,{req}) => files.validateExtension('xls','xlsx')(req)),
             query('sheet').notEmpty(),
-            query('venta','Opción inválida').notEmpty().isIn(['Directa', 'Receta Médica', 'Receta Médica Retenida','Receta Cheque']),
+            query('venta','Opción inválida').optional().notEmpty().isIn(['Directa', 'Receta Médica', 'Receta Médica Retenida','Receta Cheque']),
              handlerErrorResult
             ],
             adminController.updateMaster

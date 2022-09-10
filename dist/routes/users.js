@@ -6,21 +6,15 @@ const controllers_1 = require("../controllers");
 const middlewares_1 = require("../middlewares");
 const router = (0, express_1.Router)();
 router.get('', [
-    // cookie('token').custom(jwt.verifyToken),
-    (0, express_validator_1.check)('token').custom(middlewares_1.jwt.verifyToken),
+    (0, express_validator_1.cookie)().exists().withMessage('Ningun token encontrado').bail().custom((value, { req }) => middlewares_1.utils.getAccessToken(value, req)).bail().custom((value, { req }) => middlewares_1.aws.CognitoValidateUserByToken(req.token)),
     middlewares_1.handlerErrorResult
-], controllers_1.userController.getUser);
-router.post('', [(0, express_validator_1.body)('email', 'Campo inválido').notEmpty().bail().isEmail(),
-    (0, express_validator_1.body)('Role', 'Campo inválido').notEmpty().isObject(),
-    middlewares_1.handlerErrorResult], controllers_1.userController.createUser);
-router.post('/login', [(0, express_validator_1.body)('email', 'Campo inválido').notEmpty().bail().isEmail().custom((email) => middlewares_1.aws.validateObject("Users", "email", { S: email }, true)).bail(),
-    (0, express_validator_1.body)('password', 'Campo inválido').notEmpty().bail().isLength({ min: 6 }),
-    middlewares_1.handlerErrorResult], controllers_1.userController.login);
-router.get('/logout', controllers_1.userController.logout);
-router.get('/renew', [
-    // cookie('token').custom(jwt.verifyToken),
-    (0, express_validator_1.check)('token').custom(middlewares_1.jwt.verifyToken),
+], controllers_1.userController.getUserInfo);
+router.post('/create_user/:type', [
+    (0, express_validator_1.param)('type').notEmpty().custom((pool) => middlewares_1.aws.CognitoValidatePools(pool)).bail(),
+    (0, express_validator_1.body)('email', 'Campo inválido').notEmpty().custom((email, { req }) => middlewares_1.aws.CognitoValidateUserByField("email", email)(req)).bail(),
+    (0, express_validator_1.body)('info', 'Campo inválido').notEmpty().isObject().custom(({ rut }, { req }) => middlewares_1.aws.CognitoValidateUserByField('custom:RUT', rut)(req)),
+    (0, express_validator_1.body)('address', 'Campo inválido').notEmpty(),
     middlewares_1.handlerErrorResult
-], controllers_1.userController.renewToken);
+], controllers_1.userController.createUser);
 exports.default = router;
 //# sourceMappingURL=users.js.map

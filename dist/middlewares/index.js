@@ -23,7 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.handlerErrorResult = exports.jwt = exports.files = exports.aws = void 0;
+exports.handlerErrorResult = exports.utils = exports.jwt = exports.files = exports.aws = void 0;
 const express_validator_1 = require("express-validator");
 const aws = __importStar(require("./aws"));
 exports.aws = aws;
@@ -31,6 +31,8 @@ const files = __importStar(require("./files"));
 exports.files = files;
 const jwt = __importStar(require("./jwt"));
 exports.jwt = jwt;
+const utils = __importStar(require("./utils"));
+exports.utils = utils;
 const handlerErrorResult = (req, res, next) => {
     const errors = (0, express_validator_1.validationResult)(req);
     if (!errors.isEmpty()) {

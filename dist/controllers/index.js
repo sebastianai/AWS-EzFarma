@@ -23,9 +23,13 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.pharmacyController = exports.userController = void 0;
-const userController = __importStar(require("./users"));
-exports.userController = userController;
+exports.userController = exports.pharmacyController = exports.marketPlaceController = exports.adminController = void 0;
+const adminController = __importStar(require("./admin"));
+exports.adminController = adminController;
+const marketPlaceController = __importStar(require("./marketplace"));
+exports.marketPlaceController = marketPlaceController;
 const pharmacyController = __importStar(require("./pharmacy"));
 exports.pharmacyController = pharmacyController;
+const userController = __importStar(require("./users"));
+exports.userController = userController;
 //# sourceMappingURL=index.js.map

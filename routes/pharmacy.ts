@@ -12,13 +12,13 @@ const router = Router();
 
 router.get('',
             [
-             cookie('CognitoIdentityServiceProvider.*.accessToken').notEmpty().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).custom((token,{req}) => aws.CognitoValidateUserByToken(req.token)),
+             cookie().exists().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).bail().custom((token,{req}) => aws.CognitoValidateUserByToken(req.token)),
              handlerErrorResult
             ],pharmacyController.getLists)
 
 router.post('/upload',
             [
-             cookie('CognitoIdentityServiceProvider.*.accessToken').notEmpty().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).custom((token,{req}) => aws.CognitoValidateUserByToken(req.token,req)).bail(),
+             cookie().exists().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).bail().custom((token,{req}) => aws.CognitoValidateUserByToken(req.token,req)).bail(),
              upload.array('Catalogo'),
              check('Catalogo').custom((value,{req}) => files.validateExtension('xls','xlsx')(req)).bail(),
              body('Drogueria','Campo inválido').notEmpty(),
@@ -32,7 +32,7 @@ router.post('/upload',
 
 router.get('/stats',
             [
-                cookie('CognitoIdentityServiceProvider.*.accessToken').notEmpty().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).custom((token,{req}) => aws.CognitoValidateUserByToken(req.token,req)).bail(),
+                cookie().exists().withMessage('Ningun token encontrado').bail().custom((value,{req}) => utils.getAccessToken(value,req)).bail().custom((token,{req}) => aws.CognitoValidateUserByToken(req.token,req)),
                 handlerErrorResult
             ],
             pharmacyController.getStats

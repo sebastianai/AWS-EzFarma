@@ -44,7 +44,7 @@
                 </li>
                 <li>
                     <span>
-                        <h6>ID Cliente: {{ details.customerID }}</h6>
+                        <h6>ID Cliente: {{ details.customerId }}</h6>
                     </span>
                 </li>
                 <li>
@@ -77,41 +77,12 @@
                     </li>
                     <li>
                         <span style="display: -webkit-inline-flex; width: 98%;">
-                            <h6 style="width: 50%;">Dirección: </h6>
+                            <h6 style="width: 50%;">Dirección: {{user.adress}}</h6>
                             <h6 style="width: 50%;">Telefono: </h6>
                         </span>
                     </li>
                 </ul>
             </div>
-            <div id="Seller">
-                {{#ifCond seller "!=" undefined }}
-                <h5>Vendedor</h5>
-                <ul>
-                    <li>
-                        <span>
-                            <h6>Rut: {{ user.rut }}</h6>
-                        </span>
-                    </li>
-                    <li>
-                        <span>
-                            <h6>Razón Social: {{ user.enterpriseName }}</h6>
-                        </span>
-                    </li>
-                    <li>
-                        <span>
-                            <h6>Nombre: {{ user.name }}</h6>
-                        </span>
-                    </li>
-                    <li>
-                        <span>
-                            <h6>Dirección: </h6>
-                            <h6>Telefono: </h6>
-                        </span>
-                    </li>
-                </ul>
-                {{/ifCond}}
-            </div>
-            
         </div>
         <div class="content">
             <h5>Pedido</h5>
@@ -127,20 +98,28 @@
                     </tr>
                     </thead>
                     <tbody>
-                        {{#each products.prodlist }}
+                        {{#each ProductCarts.prodlist }}
                         <tr>
-                            <td class="column-productcode" style="border: 1px solid black;">{{ this.Producto_ID }}</td>
-                            <td class="column-name" style="border: 1px solid black;">{{ this.Descripcion }}</td>
-                            <td class="right column-amount" style="border: 1px solid black;">{{ this.Cantidad }}</td>
-                            <td class="right column-price" style="border: 1px solid black;">{{ this.Precio }}</td>
-                            <td class="right column-total-price" style="border: 1px solid black;">{{ this.Total }}</td>
+                            <td class="column-productcode" style="border: 1px solid black;">{{ this.IDPRODUCTO }}</td>
+                            <td class="column-name" style="border: 1px solid black;">{{ this.NOMBRE }}</td>
+                            <td class="right column-amount" style="border: 1px solid black;">{{ this.CANTIDAD }}</td>
+                            <td class="right column-price" style="border: 1px solid black;">{{ this.PRECIO }}</td>
+                            <td class="right column-total-price" style="border: 1px solid black;">{{ this.SUBTOTAL }}</td>
                         </tr>
                         {{/each}}
                     </tbody>
                     <tfoot>
                     <tr>
-                        <td colspan="4" class="align-right"><strong>Total:</strong></td>
-                        <td id="totalamount" class="align-right nowrap column-amount">{{ products.subtotal}}</td>
+                        <td colspan="4" class="align-right"><strong>NETO:</strong></td>
+                        <td id="totalamount" class="align-right nowrap column-amount">{{ ProductCarts.subtotal}}</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="align-right"><strong>IVA:</strong></td>
+                        <td id="totalamount" class="align-right nowrap column-amount">19%</td>
+                    </tr>
+                    <tr>
+                        <td colspan="4" class="align-right"><strong>Subtotal:</strong></td>
+                        <td id="totalamount" class="align-right nowrap column-amount">{{ ProductCarts.total}}</td>
                     </tr>
                     </tfoot>
                 </table>

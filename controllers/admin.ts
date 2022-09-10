@@ -23,7 +23,7 @@ export const updateMaster = async(req:Request,res:Response) => {
         // const isAdmin  = await cognito.send( new AdminGetUserCommand(params))
         // if(!isAdmin) return res.status(403).end()
         file.forEach(async(file) => {
-            const csv = files.transformExcelToCsv(file,sheet as string,venta as string,(err:string) => {
+            const csv = files.transformExcelToCsv(file.buffer,sheet as string,(err:string) => {
                 if(err){
                     console.log(err)
                     return res.status(500).json({
@@ -31,7 +31,7 @@ export const updateMaster = async(req:Request,res:Response) => {
                         ok:false
                     })
                 }
-            },category as string);
+            },venta as string,category as string);
             const params:PutObjectCommandInput = {
                 Bucket:'ezf-master',
                 Key:'master.csv',

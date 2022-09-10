@@ -1,43 +1,80 @@
 "use strict";
-var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
-    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
-    return new (P || (P = Promise))(function (resolve, reject) {
-        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
-        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
-        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
-        step((generator = generator.apply(thisArg, _arguments || [])).next());
-    });
-};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.listTables = exports.createTable = exports.document = void 0;
-const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
+exports.mySQL = exports.document = void 0;
+const mysql_1 = __importDefault(require("mysql"));
 const AWS_1 = __importDefault(require("../AWS"));
 const db = AWS_1.default.DynamoDB;
 exports.document = AWS_1.default.DocumentClient;
-const createTable = (params) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const data = yield db.send(new client_dynamodb_1.CreateTableCommand(params));
-        console.log("Table Created", data);
-        return data;
+class MySQL {
+    constructor() {
+        this.db = mysql_1.default.createPool({
+            host: process.env.RDS_HOSTNAME,
+            database: process.env.RDS_DATABASE,
+            user: process.env.RDS_USERNAME,
+            password: process.env.RDS_PASSWORD,
+            multipleStatements: true
+        });
+        this.db.getConnection((err) => {
+            if (err)
+                throw Error(`Database Exception ${err.message}`);
+        });
     }
-    catch (err) {
-        console.log("Error", err);
+    selectAll(table, limit = 10, offset, like, orderby) {
+        return new Promise((resolve, reject) => {
+            let where = '';
+            if (like) {
+                where = `WHERE ${Object.keys(like)[0]} LIKE '%${Object.values(like)[0]}%'`;
+            }
+            let order = '';
+            if (orderby) {
+                order = `ORDER BY ${Object.keys(orderby)[0]} ${Object.values(orderby)[0]}`;
+            }
+            const sql = `SELECT * FROM ${table} ${where} ${order} LIMIT ${limit}, ${offset};SELECT COUNT(*) FROM ${table} ${where};`;
+            this.db.query(sql, (err, result) => {
+                if (err) {
+                    return reject(err);
+                }
+                resolve([result[0], result[1]]);
+            });
+        });
     }
-});
-exports.createTable = createTable;
-const listTables = (params) => __awaiter(void 0, void 0, void 0, function* () {
-    try {
-        const data = yield db.send(new client_dynamodb_1.ListTablesCommand(params));
-        console.log("Tables", data);
-        return data;
+    select(table, primary_key, column, filters, ...fields) {
+        return new Promise((resolve, reject) => {
+            let sql = `show columns from ${table} where ` + '`Key`=' + '"PRI";';
+            this.db.query(sql, (err, result) => {
+                var _a;
+                if (err) {
+                    reject(err);
+                }
+                const PrimaryKey = ((_a = result === null || result === void 0 ? void 0 : result.shift()) === null || _a === void 0 ? void 0 : _a.Field) || column;
+                if (!PrimaryKey)
+                    reject('Ningún PK proveido o encontrado');
+                let where = `WHERE ${PrimaryKey} = ${(typeof primary_key === 'string') ? `'${primary_key}'` : primary_key}`;
+                if (filters) {
+                    filters.forEach((filter, i) => {
+                        if (filters.length <= i + 1) {
+                            where += 'AND';
+                        }
+                        where += ` ${filter.key}${filter.type}${(typeof filter.value === 'string') ? `'${filter.value}'` : filter.value} `;
+                    });
+                }
+                sql = `SELECT ${(fields.length > 0) ? fields : '*'} FROM ${table} ${where};`;
+                this.db.query(sql, (err, result) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    resolve(result);
+                });
+            });
+        });
     }
-    catch (err) {
-        console.log("Error", err);
+    destroy() {
+        this.db.end();
     }
-});
-exports.listTables = listTables;
+}
+exports.mySQL = new MySQL();
 exports.default = db;
 //# sourceMappingURL=db.js.map

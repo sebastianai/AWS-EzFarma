@@ -1,3 +1,23 @@
+export interface Buy{
+    COMPRA:     number;
+    ORDEN:      number;
+    ID:         number;
+    DROGUERIA?:  string;
+    RUT:        string;
+    DIRECCION:  string;
+    FECHA:      Date;
+    SUBTOTAL:   number;
+    IDPRODUCTO: string;
+    NOMBRE:     string;
+    ESTADO:     number;
+    CANTIDAD:   number;
+    PRECIO:     number;
+    TOTAL:      number;
+}
+export interface Order{
+    Username:  string;
+    Productos: Product[];
+}
 export interface Cart{
     productos:ProductCart;
     total:number;
@@ -13,7 +33,16 @@ export interface Product {
     DESCRIPCION:   string;
     FORMATO?:       string;
     PRECIO:        number;
-    PRECIO_OFERTA?: number;
+    PRECIO_OFERTA: number;
     NOMBRE:        string;
-    CANTIDAD?:     number
+    CANTIDAD:     number
+}
+
+export interface Medicamento {
+    PRODUCTO_ID: string;
+    COUNT:       number;
+    NOMBRE:      string;
+    VENTA:       string;
+    CANTIDAD:    number;
+    ULTIMA:      string;
 }

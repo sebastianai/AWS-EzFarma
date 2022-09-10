@@ -23,9 +23,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
     return result;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.utils = exports.jwt = exports.files = exports.bcrypt = void 0;
-const bcrypt = __importStar(require("./bcrypt"));
-exports.bcrypt = bcrypt;
+exports.utils = exports.jwt = exports.files = void 0;
 const jwt = __importStar(require("./jwt"));
 exports.jwt = jwt;
 const files = __importStar(require("./files"));

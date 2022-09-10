@@ -15,14 +15,25 @@ class MySQL{
             password:process.env.RDS_PASSWORD,
             multipleStatements:true
         })
+        this.db.getConnection((err) => {
+            if(err) throw Error(`Database Exception ${err.message}`);
+        })
     }
 
-    selectAll(table:string,limit:number = 10,offset?:number):Promise<[any,number]>{
+    selectAll(table:string,limit:number = 10,offset?:number,like?:{[column:string]:string},orderby?:{[field:string]:'ASC' | 'DESC'}):Promise<[any,number]>{
         return new Promise((resolve,reject) => {
-            const sql:string = `SELECT * FROM ${table} LIMIT ${limit}, ${offset};SELECT COUNT(*) FROM ${table}`;
+            let where = '';
+            if(like){
+                where = `WHERE ${Object.keys(like)[0]} LIKE '%${Object.values(like)[0]}%'`;
+            }
+            let order = '';
+            if(orderby){
+                order = `ORDER BY ${Object.keys(orderby)[0]} ${Object.values(orderby)[0]}`;
+            }
+            const sql:string = `SELECT * FROM ${table} ${where} ${order} LIMIT ${limit}, ${offset};SELECT COUNT(*) FROM ${table} ${where};`;
             this.db.query(sql,(err,result) =>{
                 if(err){
-                    reject(err)
+                    return reject(err)
                 }
                 resolve([result[0],result[1]])
             })

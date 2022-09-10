@@ -2,3 +2,35 @@
 CREATE OR REPLACE VIEW MARKET_Producto AS
 SELECT cp.*,c.NOMBRE FROM Catalogo_Producto cp JOIN Catalogos c ON cp.ID_CATALOGO = c.ID
 WHERE c.VIGENTE = True;
+
+/*TOP Droguerias*/
+CREATE OR REPLACE VIEW POPULAR_Droguerias as
+WITH Top_Droguerias AS(
+Select NOMBRE, count(*) as NumCatalogos,
+ROW_NUMBER() OVER (PARTITION BY NOMBRE ORDER BY count(*) DESC) AS RN
+From Catalogos
+Group by NOMBRE
+)
+SELECT * FROM Top_Droguerias
+Where RN = 1;
+
+/*Ordenes de compra */
+CREATE OR REPLACE VIEW orden_compra AS
+SELECT  f.ID AS FARMACIA,op.ORDER_ID AS COMPRA, c.ID_COMPRA AS ID, o.NOMBRE AS DROGUERIA, o.FECHA_CREACION AS FECHA, p.ID AS IDPRODUCTO, p.NOMBRE AS NOMBRE, op.CANTIDAD AS CANTIDAD, op.PRECIO AS PRECIO,op.TOTAL AS SUBTOTAL,  o.GRANDTOTAL AS TOTAL
+FROM Compra c
+JOIN Ordenes o ON c.ID_COMPRA = o.ID_COMPRA
+JOIN Orden_Producto op ON o.ID = op.ORDER_ID 
+JOIN Farmacias f ON o.FARMACIA_ID = f.ID
+JOIN Producto p ON op.PRODUCTO_ID = p.ID;
+
+/*Carrito sugerido*/
+CREATE OR REPLACE VIEW POPULAR_PRODUCTOS AS
+	SELECT COUNT(op.PRODUCTO_ID) AS COUNT,cp.*
+	FROM Ordenes o
+	JOIN Orden_Producto op ON o.ID = op.ORDER_ID
+	LEFT JOIN Producto p ON op.PRODUCTO_ID = p.ID
+	LEFT JOIN Medicamento m ON p.ID = m.ID
+    INNER JOIN Catalogo_Producto cp ON op.PRODUCTO_ID = cp.PRODUCTO_ID
+	GROUP BY op.PRODUCTO_ID
+	ORDER BY COUNT DESC
+	LIMIT 10;

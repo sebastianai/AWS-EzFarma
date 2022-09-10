@@ -1,8 +1,9 @@
 import fs from 'fs';
-import { Cart, ProductCart } from '../models/Marketplace';
+import { Buy, Cart, ProductCart } from '../models/Marketplace';
 import path from 'path';
 
 import pdfCreator from 'pdf-creator-node';
+import { AttributeType, UserType } from '@aws-sdk/client-cognito-identity-provider';
 
 
 const pdfOptions = {
@@ -12,42 +13,39 @@ const pdfOptions = {
     border: '3mm',
 }
 
-export const transformHTMLToPDF = (data:ProductCart[],filename:string):Promise<{filename:string}> => {
+export const transformHTMLToPDF = (data:Buy[],filename:string,attrs:AttributeType[]):Promise<{filename:string}> => {
     return new Promise((resolve,reject) => {
         const html = fs.readFileSync(path.join(__dirname,'../assets/order.html'),{encoding:'utf-8'})
         const file = filename + '_doc' + '.pdf';
         const bitmap = fs.readFileSync(path.join(__dirname, "../assets/LogoNegro.png"));
         const logo = bitmap.toString('base64');
-        let array:Cart[] = [];
-        let total = 0;
-        data.forEach(d => {
-            total = d.producto.PRECIO * d.cantidad;
-            array.push({productos:d,total:total});
-        });
-
-        let subtotal = 0;
-        array.forEach((i) => {
-            subtotal += i.total
-        });
-
+        const subtotal = data.reduce((total,producto) => {
+            total += producto.SUBTOTAL
+            return total
+        },0)
+        const total = data.map((att) => att.TOTAL)[0]
         const obj = {
-            prodlist: array,
-            subtotal: subtotal
-        }
+            prodlist: data,
+            total,
+            subtotal
+        };
+        const details = {
+            purchaseID:data.map((att) => att.COMPRA)[0],
+            customerId:attrs.find((attr) => attr.Name == 'sub')?.Value,
+            date:new Date(data.map((att) => att.FECHA)[0]).toLocaleDateString()
+        };
         const document = {
             html: html,
             data: {
                 logo:logo,
                 ProductCarts: obj,
-                details: {
-                    purchaseID:'asasd',
-                    customerID:'1',
-                    date: new Date().toLocaleDateString()
-                },
+                details,
                 user:{
-                    rut:'77.777.777-k',
-                    enterpriseName:'Farmacia de prueba',
-                    name:'Usuario'
+                    name:attrs.find(({Name}) => Name?.includes('name'))?.Value,
+                    rut:attrs.find(({Name}) => Name?.includes('rut'))?.Value,
+                    enterpriseName:attrs.find(({Name}) => Name?.includes('enterpriseName'))?.Value,
+                    adress:attrs.find(({Name}) => Name == 'address')?.Value,
+                    email:attrs.find(({Name}) => Name?.includes('email'))?.Value,
                 }
             },
             path:`./docs/${file}`,

@@ -12,12 +12,76 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateObject = void 0;
+exports.RDSValidateObject = exports.DynamoValidateObject = exports.CognitoValidateUserByToken = exports.CognitoValidateUserByField = exports.CognitoValidatePools = void 0;
 const client_dynamodb_1 = require("@aws-sdk/client-dynamodb");
+const client_cognito_identity_provider_1 = require("@aws-sdk/client-cognito-identity-provider");
 const AWS_1 = __importDefault(require("../AWS"));
-const validateIAMUser = (username) => __awaiter(void 0, void 0, void 0, function* () {
+const db_1 = require("../database/db");
+const cognito = AWS_1.default.Cognito;
+const CognitoValidatePools = (pool) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const params = {
+            UserPoolId: process.env.POOL_ID,
+            Limit: 30
+        };
+        const { Groups } = yield cognito.send(new client_cognito_identity_provider_1.ListGroupsCommand(params));
+        if (!Groups) {
+            throw Error('Ningun grupo de usuarios encontrado');
+        }
+        const pools = Groups.filter(({ GroupName }) => GroupName === pool);
+        if (pools.length === 0) {
+            throw Error(`${pool} no pertenece a ningun grupo - Grupos displonibles ${Groups.map((p) => p.GroupName)}`);
+        }
+        return true;
+    }
+    catch (error) {
+        throw error;
+    }
 });
-const validateObject = (tableName, searchField, key, needed = false, sort) => __awaiter(void 0, void 0, void 0, function* () {
+exports.CognitoValidatePools = CognitoValidatePools;
+const CognitoValidateUserByField = (field, value, requiredExists = false) => {
+    return (req) => __awaiter(void 0, void 0, void 0, function* () {
+        var _a;
+        try {
+            const email = req.body.email;
+            const params = {
+                Username: email,
+                UserPoolId: process.env.POOL_ID
+            };
+            const user = yield cognito.send(new client_cognito_identity_provider_1.AdminGetUserCommand(params));
+            const userExists = (_a = user.UserAttributes) === null || _a === void 0 ? void 0 : _a.find((att) => att.Name === field && att.Value === value);
+            if (userExists) {
+                throw new Error(`El atributo ${field} debe ser unico, pero ya existe un usuario con el valor ${value}`);
+            }
+            return true;
+        }
+        catch (error) {
+            if (error.__type == 'UserNotFoundException' && requiredExists != true) {
+                return true;
+            }
+            throw error;
+        }
+    });
+};
+exports.CognitoValidateUserByField = CognitoValidateUserByField;
+const CognitoValidateUserByToken = (access_token, req) => __awaiter(void 0, void 0, void 0, function* () {
+    var _a, _b;
+    try {
+        const params = {
+            AccessToken: access_token || req.token
+        };
+        const user = yield cognito.send(new client_cognito_identity_provider_1.GetUserCommand(params));
+        if (req) {
+            req.user = (_b = (_a = user.UserAttributes) === null || _a === void 0 ? void 0 : _a.find(({ Name }) => Name === null || Name === void 0 ? void 0 : Name.includes('enterpriseName'))) === null || _b === void 0 ? void 0 : _b.Value;
+        }
+        return true;
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.CognitoValidateUserByToken = CognitoValidateUserByToken;
+const DynamoValidateObject = (tableName, searchField, key, needed = false, sort) => __awaiter(void 0, void 0, void 0, function* () {
     const db = AWS_1.default.DynamoDB;
     try {
         const params = {
@@ -45,5 +109,18 @@ const validateObject = (tableName, searchField, key, needed = false, sort) => __
         throw error;
     }
 });
-exports.validateObject = validateObject;
+exports.DynamoValidateObject = DynamoValidateObject;
+const RDSValidateObject = (tablename, value, column, filter) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const result = yield db_1.mySQL.select(tablename, value, column, filter);
+        if (result.length < 1) {
+            throw new Error('Ningun objeto encontrado');
+        }
+        return true;
+    }
+    catch (error) {
+        throw error;
+    }
+});
+exports.RDSValidateObject = RDSValidateObject;
 //# sourceMappingURL=aws.js.map
